@@ -1,0 +1,21 @@
+# Created by .ignore support plugin (hsz.mobi)
+### Go template
+.idea
+.DS_Store
+logs
+*.log
+temp
+*.tmp
+*.env
+vendor
+
+configs
+
+compiled/
+
+cmd/reporter/
+
+*.pem
+/configs/
+
+*.config.yaml

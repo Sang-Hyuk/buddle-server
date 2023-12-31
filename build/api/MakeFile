@@ -1,0 +1,26 @@
+.PHONY: vendor clean
+
+profile=buddle
+version=latest
+prd=production
+image=buddle
+
+deploy-prd: ecr-login build-go-api deploy-prd-go-api clean
+
+vendor:
+	go mod tidy -v && go mod vendor -v
+
+clean:
+	rm -r bin/go-api
+
+ecr-login:
+	aws ecr get-login-password --profile $(profile) --region ap-northeast-2 | docker login --username AWS --password-stdin 423005126956.dkr.ecr.ap-northeast-2.amazonaws.com
+
+build-go-api:
+	GOOS=linux GOARCH=amd64 go build -o bin/go-api ./cmd/api
+	DOCKER_BUILDKIT=1 docker build -t $(image):$(version) -f ./build/api/api.Dockerfile .
+
+deploy-prd-go-api:
+	docker tag $(image):$(version) 423005126956.dkr.ecr.ap-northeast-2.amazonaws.com/$(image):$(version)
+	docker push 423005126956.dkr.ecr.ap-northeast-2.amazonaws.com/$(image):$(version)
+	ssh buddle-api './deploy.sh'
